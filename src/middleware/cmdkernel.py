@@ -1,10 +1,7 @@
-from typing import Union
-
 from middleware.middleware import Middleware
-
 from discord.ext.commands.context import Context
-
 from src.exception.stop_exception import StopException
+
 
 class CmdKernel:
     cmd:dict[str,str] = {}
@@ -17,7 +14,7 @@ class CmdKernel:
 
     def check_middleware(self,middleware:str,callback:callable=None):
         if not self.middleware.get(middleware):
-           raise Exception("Middleware not exists") if callback == None else callback()
+           raise Exception("Middleware is not registered") if callback == None else callback()
 
     def is_not_dublicate(self,command:str) -> bool:
         return self.cmd.get(command) == None

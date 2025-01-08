@@ -29,7 +29,7 @@ class Modal(View):
 
     def get(self) -> DiscordView:
         return DiscordModalCustom(self.title,
-                                   self.items,
-                                   self.on_submit,
-                                   custom_id=self.custom_id,
-                                   timeout=self.timeout)
+                                  self.items,
+                                  self.on_submit,
+                                  custom_id=self.custom_id,
+                                  timeout=self.timeout)

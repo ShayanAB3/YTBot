@@ -19,8 +19,6 @@ class Event(commands.Cog):
     @commands.Cog.listener()
     async def on_command_error(self,ctx:Context,error:CommandError):
         pass
-        #print(f"Context: {ctx}")
-        #print(f"Error: {error}")
 
 async def setup(bot:commands.Bot):
     await bot.add_cog(Event(bot))

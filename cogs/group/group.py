@@ -2,7 +2,7 @@ from discord.app_commands import Group as DiscordGroup
 from discord.app_commands.translator import locale_str
 from discord.utils import MISSING
 from discord import Permissions
-from discord.ext.commands import Bot
+from discord.ext.commands import Bot, Cog
 
 from typing import Union, Optional, Dict, Any
 
@@ -57,13 +57,9 @@ class Group(DiscordGroup):
     auto_locale_strings: bool = True
     default_permissions: Optional[Permissions] = MISSING,
     extras: Dict[Any, Any] = MISSING
+    
+    bot:Bot
 
     def __init__(self,bot:Bot):
         self.bot = bot
-        super().__init__(name=self.name, 
-                         description=self.description,
-                         parent=self.parent,
-                         guild_only=self.guild_only,
-                         nsfw=self.nsfw,
-                         auto_locale_strings=self.auto_locale_strings,
-                         extras=self.extras)
+        super().__init__(name=self.name, description=self.description)

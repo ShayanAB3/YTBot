@@ -1,6 +1,9 @@
 from discord.ext.commands.context import Context
 from discord.ext.commands import CommandError
+from discord import Interaction
+
 from access.check_failure_handler import CheckFailureHandler
+from typing_extensions import Union
 
 class AccessKernel:
     cmd:dict[str,str] = {}
@@ -27,7 +30,7 @@ class AccessKernel:
        if not access_list.get(access_key):
           raise Exception(f"Key {access_key} not exists") if callback == None else callback()
 
-    async def active_access(self,context: Context, exception:CommandError) -> bool | None:
+    async def active_access(self,context: Union[Context,Interaction], exception:CommandError) -> bool | None:
         command_name:str = str(context.command)
         access_key = self.cmd.get(command_name)
         if not access_key:

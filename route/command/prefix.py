@@ -9,9 +9,9 @@ from route.facade.middleware import Middleware
 from typing import Union
 
 class Prefix(Command,Middleware,Access,Permission,Channel):
-    def command(self,name:str,*,description:str="",middleware:str="",channel:Union[str,int]=""):
+    def command(self,*,name:str,description:str,category:str,middleware:str="",channel:Union[str,int]=""):
         self.set_args(name,middleware,channel) 
-        return commands.command(name=name,description=description,help="Command helping for yours")
+        return commands.command(name=name,description=description,help=description,category=category)
     
     def set_args(self,name:str,middleware:str,channel_name:str):
         self.name = name

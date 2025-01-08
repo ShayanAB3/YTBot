@@ -1,2 +1,4 @@
+from src.helpers.env.env import Env
+
 class StorageProvider:
-    dirname:str = "storage"
+    dirname:str = Env.readEnv("STORAGE_DIR")

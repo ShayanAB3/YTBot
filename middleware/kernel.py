@@ -5,7 +5,7 @@ from middleware.middleware import Middleware
 
 class Kernel(CmdKernel):
     middleware:dict[str,Middleware] = {
-        "first_middleware": FirstMiddleware
+        "first_middleware": FirstMiddleware,
     }
 
 kernel = Kernel()

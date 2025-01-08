@@ -1,7 +1,6 @@
 import discord
 from discord.ext import commands
 from discord.ext.commands.context import Context
-from discord import Interaction
 
 from middleware.kernel import kernel as kernel_middleware
 from access.kernel import kernel as kernel_access
@@ -17,6 +16,9 @@ from facade.bot.bot import bot as global_bot
 from src.helpers.env.env import Env
 from src.exception.stop_exception import StopException
 
+from src.command_error.command.command_context import CommandContext
+from src.command_error.command.command_interaction import CommandInteraction
+
 import discord
 import logging
 
@@ -25,6 +27,7 @@ from help.help import Help
 intents = discord.Intents.all()
 intents.message_content = True
 intents.voice_states = True
+intents.members = True
 
 command_prefix = Env.readEnv("COMMAND_PREFIX")
 token = Env.readEnv("TOKEN")
@@ -50,19 +53,17 @@ class Client(commands.Bot):
             return
         is_found_access = await kernel_access.active_access(context,exception)
         if is_found_access == False:
-            await kernel_command_error.active_command_error(context,exception)
-
-
-    async def on_interaction(self,interaction: Interaction):
-        pass
+            command = CommandContext(context)
+            await kernel_command_error.active_command_error(command,exception)
 
     async def before_any_command(self, context:Context):
-      global_context.set(context)
-      await kernel_channel.check_access_channel(context)
-      await kernel_middleware.active_middleware(context)
+        global_context.set(context)
+        await kernel_channel.check_access_channel(context)
+        await kernel_middleware.active_middleware(context)
     
 client = Client()
 client.help_command = Help()
+
 
 global_bot.set(client)
 
