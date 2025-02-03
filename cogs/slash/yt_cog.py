@@ -16,8 +16,11 @@ class YTCog(Cogs):
     'before_options': '-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5',
     'options': '-vn'
     }
+    
     queue_play_list = Queue()
+
     now_play_info:dict[str,str]
+    is_repeat:bool = False
 
     @route.slash.command(name="join", description="Joins a voice channel")
     async def join(self, interaction:Interaction):
@@ -58,47 +61,36 @@ class YTCog(Cogs):
             return
 
         await interaction.response.defer()
+        
+        yt_dlp_instance = YTDlp()
+        search_results = yt_dlp_instance.search_or_url(name_or_url)
 
-        try:
-            OPTIONS_YTDLP = {
-                'extract_flat': True,
-                'noplaylist': True,
-                'writesubtitles':False
-            }
-            yt_dlp_instance = YTDlp(OPTIONS_YTDLP)
-            search_results = yt_dlp_instance.search_or_url(name_or_url)
+        self.queue_play_list.set(search_results)
 
-            if not search_results:
+        if not voice_client.is_playing():
+            is_have_music = await self.play_next(interaction,False)
+            if is_have_music == False:
                 await interaction.followup.send("**Could not find the video on request.**", ephemeral=True)
                 return
 
-            self.queue_play_list.set(search_results)
-    
-            if not voice_client.is_playing():
-                await self.play_next(interaction)
-
-            await interaction.followup.send(embed=YTDlpEmbed.add_music_embed(search_results,interaction))
-
-        except Exception as e:
-            embed = Embed(title=e.__class__.__name__,
-                          color=Color.red(),
-                          description=e.__str__())
-            await interaction.followup.send(embed=embed, ephemeral=True)
-
+        await interaction.followup.send(embed=YTDlpEmbed.add_music_embed(search_results,interaction))
 
 
     @route.slash.command(name="next",description="Skipping music and play next music")
     async def next(self,interaction:Interaction):
         voice_client = interaction.guild.voice_client        
         if voice_client is None:
-                await interaction.response.send_message("> **The bot is not connected to the voice channel.**", ephemeral=True,delete_after=180)
+                await interaction.response.send_message("**The bot is not connected to the voice channel.**", ephemeral=True,delete_after=180)
                 return
         
         if self.queue_play_list.len() == 0:
             await interaction.response.send_message(embed=YTDlpEmbed.empty_embed(interaction),ephemeral=True,delete_after=180)
             return
-
+           
+        
         next_music = self.queue_play_list.peek()
+        self.is_repeat = False
+
         embed = YTDlpEmbed.next_music_embed(next_music,interaction)
         
         await interaction.response.send_message(embed=embed, ephemeral=True,delete_after=180)
@@ -106,17 +98,34 @@ class YTCog(Cogs):
         if voice_client.is_playing():
             voice_client.stop()
 
-    async def play_next(self,interaction:Interaction):
-        if self.queue_play_list.len() == 0:
+    async def play_next(self,interaction:Interaction,is_fetch = True) -> bool:
+        url:str
+        search_results:dict
+
+        if self.queue_play_list.len() == 0 and self.is_repeat == False:
             return
-        
-        info = self.queue_play_list.get()
-        print("**Playing**")
-        self.now_play_info = info
-        ytdlp = YTDlp()
-        result = ytdlp.search_or_url(info["webpage_url"])
-        source = FFmpegOpusAudio(result["url"], **self.FFMPEG_OPTIONS)
+
+        if self.is_repeat == False:
+            result = self.queue_play_list.get()
+            webpage_url = result["webpage_url"]
+
+            if is_fetch:
+                yt_dlp_instance = YTDlp()
+                search_results = yt_dlp_instance.search_or_url(webpage_url)
+            else:
+                search_results = result
+
+            if not search_results:
+                return False
+
+            self.now_play_info = search_results
+            url = search_results["url"]
+        else:
+            url = self.now_play_info["url"]
+
+        source = FFmpegOpusAudio(url, **self.FFMPEG_OPTIONS)
         interaction.guild.voice_client.play(source,after=lambda _: self.bot.loop.create_task(self.play_next(interaction)))
+        return True
         
 
     @route.slash.command(name="stop",description="Stopping audio playback")
@@ -128,6 +137,7 @@ class YTCog(Cogs):
             return
         
         self.queue_play_list.clear()
+    
         voice_client.stop()
         await interaction.response.send_message("**Audio playback has stopped.**", ephemeral=True,delete_after=180)
 
@@ -154,12 +164,11 @@ class YTCog(Cogs):
         await interaction.response.defer()
 
         self.queue_play_list.extend(selected_playlist)
-        music = self.queue_play_list.peek()
-
+    
         if not voice_client.is_playing():
             await self.play_next(interaction)
 
-        await interaction.followup.send("**Your playlist has been added queue**",embed=YTDlpEmbed.add_music_embed(music,interaction))
+        await interaction.followup.send("**Your playlist has been added queue**")
 
     @route.slash.command(name="show_queue",description="Show queue now playing musics")
     async def show_queue(self,interaction: Interaction):
@@ -167,6 +176,7 @@ class YTCog(Cogs):
         if voice_client is None:
             await interaction.response.send_message("**The bot is not connected to the voice channel.**", ephemeral=True,delete_after=180)
             return
+
         embed = YTDlpEmbed.get_embed(self.queue_play_list,interaction)
         await interaction.response.send_message(embed=embed,ephemeral=True,delete_after=180)
 
@@ -200,6 +210,17 @@ class YTCog(Cogs):
             return
         embed = YTDlpEmbed.now_music_play_embed(self.now_play_info,interaction)
         await interaction.response.send_message(embed=embed)
+
+    @route.slash.command(name="repeat",description="Repeats currently playing music")
+    async def repeat(self,interaction: Interaction):
+        voice_client = interaction.guild.voice_client
+        if not voice_client.is_playing():
+            await interaction.response.send_message(f"**We cannot activate repeat because there is no music currently playing.**",ephemeral=True,delete_after=180)
+            return
+        
+        self.is_repeat = not self.is_repeat
+        answer = "Your played music will repeat" if self.is_repeat else "Your played music will not be repeated"
+        await interaction.response.send_message(f"**{answer}**",ephemeral=True,delete_after=180)
 
 async def setup(bot: Bot):
     await bot.add_cog(YTCog(bot))

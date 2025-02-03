@@ -13,8 +13,9 @@ class YTDlp:
     
     def search_or_url(self,name_or_url:str):
         url = Url(name_or_url)
-        url_yt = self.search(name_or_url)["url"] if not url.is_url() else name_or_url
-        return self.url(url_yt)
+        if url.is_url():
+            return self.url(name_or_url)
+        return self.search(name_or_url)
 
     def get_parser(self,info: dict[str]):
         parser = YTDlpParser(info)
