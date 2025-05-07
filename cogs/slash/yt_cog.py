@@ -95,11 +95,7 @@ class YTCog(Cogs):
         if not self.queue_play_list.len():
             await interaction.response.send_message(embed=YTDlpEmbed.empty_embed(interaction),ephemeral=True,delete_after=180)
             return
-<<<<<<< HEAD
-=======
-           
->>>>>>> 1fbe3886b2dd00b21d73aafabe7f66cc74526607
-        
+     
         next_music = self.queue_play_list.peek()
         self.is_repeat = False
 
@@ -135,11 +131,8 @@ class YTCog(Cogs):
         else:
             url = self.now_play_info["url"]
 
-<<<<<<< HEAD
+
         source = FFmpegPCMAudio(url, **self.FFMPEG_OPTIONS)
-=======
-        source = FFmpegOpusAudio(url, **self.FFMPEG_OPTIONS)
->>>>>>> 1fbe3886b2dd00b21d73aafabe7f66cc74526607
         interaction.guild.voice_client.play(source,after=lambda _: self.bot.loop.create_task(self.play_next(interaction)))
         return True
         
@@ -238,11 +231,9 @@ class YTCog(Cogs):
         embed = YTDlpEmbed.now_music_play_embed(self.now_play_info,interaction)
         await interaction.response.send_message(embed=embed)
 
+
     @route.slash.command(name="repeat",description="Repeats currently playing music")
-<<<<<<< HEAD
     @route.slash.guild_only()
-=======
->>>>>>> 1fbe3886b2dd00b21d73aafabe7f66cc74526607
     async def repeat(self,interaction: Interaction):
         voice_client = interaction.guild.voice_client
         if not voice_client.is_playing():
@@ -253,7 +244,7 @@ class YTCog(Cogs):
         answer = "Your played music will repeat" if self.is_repeat else "Your played music will not be repeated"
         await interaction.response.send_message(f"**{answer}**",ephemeral=True,delete_after=180)
 
-<<<<<<< HEAD
+
     @route.slash.command(name="shuffle",description="Moves the currently playing music")
     @route.slash.guild_only()
     async def shuffle(self,interaction:Interaction):
@@ -264,7 +255,6 @@ class YTCog(Cogs):
         
         await interaction.response.send_message(F"**Music is mixed**",ephemeral=True,delete_after=180)    
 
-=======
->>>>>>> 1fbe3886b2dd00b21d73aafabe7f66cc74526607
+
 async def setup(bot: Bot):
     await bot.add_cog(YTCog(bot))
