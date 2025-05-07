@@ -15,6 +15,14 @@ To check that you have installed ffmpeg, enter the command: `ffmpeg -version`
 3. Install libraly
 To install libraries, use the `requirements.txt` file. Command: `pip install -r /path/to/requirements.txt`
 
+4. Run MySQL
+Once you have started the database, create the database and load the database dump. For database configurations, fill the .env file with these values.
+DB_HOST=
+DB_PORT=
+DB_NAME=
+DB_USER=
+DB_PASS=
+
 ## Commands:
 ### join
 > Join voice channel
