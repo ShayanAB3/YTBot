@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 #from public.orm.session import session
 #from public.orm.models.playlist import Playlist
 #from public.orm.models.track import Track
@@ -63,3 +64,15 @@ ydl_opts = {
 with YoutubeDL(ydl_opts) as ydl:
     info = ydl.extract_info(url, download=False)
     pyperclip.copy(info)
+=======
+from public.api.yt_dlp.yt_dlp import YTDlp
+
+OPTIONS_YTDLP = {
+    'extract_flat': True,
+    'noplaylist': True,
+    'writesubtitles':False
+}
+yt_dlp_instance = YTDlp()
+search_results = yt_dlp_instance.search_or_url("Dark is the Night - Soviet WW2 Song")
+print(search_results)
+>>>>>>> 1fbe3886b2dd00b21d73aafabe7f66cc74526607
