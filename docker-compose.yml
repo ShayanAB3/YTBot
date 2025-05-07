@@ -7,14 +7,14 @@ services:
     depends_on:
       - my_sql
     environment:
-      - TOKEN=TOKEN
-      - COMMAND_PREFIX=!
-      - STORAGE_DIR=storage
-      - DB_HOST=my_sql
-      - DB_PORT=3306
-      - DB_NAME=discord_playlist
-      - DB_USER=root
-      - DB_PASS=example
+      - TOKEN=${TOKEN}
+      - COMMAND_PREFIX=${COMMAND_PREFIX}
+      - STORAGE_DIR=${STORAGE_DIR}
+      - DB_HOST=${DB_HOST}
+      - DB_PORT=${DB_PORT}
+      - DB_NAME=${DB_NAME}
+      - DB_USER=${DB_USER}
+      - DB_PASS=${DB_PASS}
     volumes:
       - .:/app
     command: ["python", "main.py"]
@@ -24,7 +24,7 @@ services:
     container_name: mysql_db
     restart: always
     environment:
-      MYSQL_ROOT_PASSWORD: example
+      MYSQL_ROOT_PASSWORD: ${DB_PASS}
       MYSQL_DATABASE: discord_playlist
     ports:
       - "3306:3306"
