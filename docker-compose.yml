@@ -10,7 +10,7 @@ services:
       - TOKEN=${TOKEN}
       - COMMAND_PREFIX=${COMMAND_PREFIX}
       - STORAGE_DIR=${STORAGE_DIR}
-      - DB_HOST=${DB_HOST}
+      - DB_HOST=my_sql
       - DB_PORT=${DB_PORT}
       - DB_NAME=${DB_NAME}
       - DB_USER=${DB_USER}
