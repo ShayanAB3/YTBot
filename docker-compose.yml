@@ -1,0 +1,32 @@
+version: '3.8'
+
+services:
+  yt-bot:
+    build: .
+    container_name: yt-bot
+    depends_on:
+      - my_sql
+    environment:
+      - TOKEN=TOKEN
+      - COMMAND_PREFIX=!
+      - STORAGE_DIR=storage
+      - DB_HOST=my_sql
+      - DB_PORT=3306
+      - DB_NAME=discord_playlist
+      - DB_USER=root
+      - DB_PASS=example
+    volumes:
+      - .:/app
+    command: ["python", "main.py"]
+  
+  my_sql:
+    image: mysql:8.0
+    container_name: mysql_db
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: example
+      MYSQL_DATABASE: discord_playlist
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./discord_playlist.sql:/docker-entrypoint-initdb.d/init.sql:ro

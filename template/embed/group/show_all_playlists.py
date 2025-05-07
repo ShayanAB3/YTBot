@@ -1,8 +1,14 @@
 from template.embed.embed import Embed
 from discord import Embed as DiscordEmbed, Color, Interaction, Member
 
+from sqlalchemy.orm import Query
+
+from public.orm.models.playlist import Playlist
+
+from json import loads
+
 class ShowAllPlaylist(Embed):
-    all_users_and_playlists:list[dict]
+    playlists:list[Playlist]
     interaction:Interaction
 
     title="All playlists"
@@ -13,13 +19,11 @@ class ShowAllPlaylist(Embed):
         embed.set_author(icon_url=self.interaction.user.avatar.url,
                          name=self.interaction.user.display_name)
         
-        for user_with_playlist in self.all_users_and_playlists:
-            author_playlist:Member = self.interaction.guild.get_member(user_with_playlist["user_id"])
+        for playlist in self.playlists:
+            author_playlist:Member = self.interaction.guild.get_member(playlist.author_id)
             nick_name = author_playlist.nick or author_playlist.name
 
-            playlists_keys = list(user_with_playlist['playlist'])
-            mapped_playlists = list(map(lambda key: f"{playlists_keys.index(key)+1}. ```{key}```\n", playlists_keys))
-            str_list_playlist = "".join(mapped_playlists)
+            str_list_playlist = "".join(f"```{name}```\n" for name in loads(playlist.names_json))
 
             embed.add_field(
                 name=f"Author: {nick_name}",

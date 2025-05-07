@@ -63,7 +63,9 @@ class YTDlpEmbed:
         description=f"**Count music: ** `{len(data)}`\nList music: ",
         color=Color.red(),
         )
-        for info in data:
+        for i, info in enumerate(data):
+            if i >= 25:
+                break
             embed.add_field(name=info["title"], value=f"{info["channel"]}",inline=False)
         return embed
     

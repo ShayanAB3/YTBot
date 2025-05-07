@@ -1,3 +1,4 @@
+import random
 from typing import TypeVar, Generic
 
 T = TypeVar('T')
@@ -19,5 +20,8 @@ class Queue(Generic[T]):
     def len(self) -> int:
         return len(self.queue)
     
+    def shuffle(self):
+        random.shuffle(self.queue)
+
     def extend(self,data:list):
         self.queue.extend(data)

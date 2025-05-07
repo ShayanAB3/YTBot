@@ -17,7 +17,6 @@ from src.helpers.env.env import Env
 from src.exception.stop_exception import StopException
 
 from src.command_error.command.command_context import CommandContext
-from src.command_error.command.command_interaction import CommandInteraction
 
 import discord
 import logging
@@ -38,6 +37,7 @@ class Client(commands.Bot):
         self.before_invoke(self.before_any_command)
 
     async def on_ready(self):
+        await self.tree.sync()
         self.loop.create_task(self.tree.sync())
         discord.utils.setup_logging()
         logger = logging.getLogger(__name__)
@@ -63,7 +63,6 @@ class Client(commands.Bot):
     
 client = Client()
 client.help_command = Help()
-
 
 global_bot.set(client)
 
